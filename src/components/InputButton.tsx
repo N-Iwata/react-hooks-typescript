@@ -1,5 +1,4 @@
 import React from "react";
-
 import Button from "@material-ui/core/Button";
 
 interface InputButtonProps {
@@ -12,14 +11,8 @@ interface InputButtonProps {
 
 const InputButton: React.FC<InputButtonProps> = (props) => {
   return (
-    <div>
-      <Button
-        type={props.type}
-        variant="contained"
-        color={props.color}
-        disabled={props.disabled}
-        onClick={(e) => props.onClick()}
-      >
+    <div className="button">
+      <Button type={props.type} variant="contained" color={props.color} disabled={props.disabled} onClick={(e) => props.onClick()}>
         {props.text}
       </Button>
     </div>
