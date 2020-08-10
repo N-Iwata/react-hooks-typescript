@@ -1,38 +1,62 @@
-import React, { useState, useReducer } from "react";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
+import React, { useState, useEffect, useReducer } from "react";
 
 import InputField from "./InputField";
 import InputButton from "./InputButton";
-import { events, initialState } from "../reducers";
+import EventTable from "./EventTable";
+import OperateLogsTable from "./OperateLogsTable";
+
+import { events, initialStateEvent } from "../reducers/Events";
+import { logs, initialStateLogs } from "../reducers/OperateLogs";
 import "../styles/style.scss";
 
 const App: React.FC = () => {
-  const [state, dispatch] = useReducer(events, initialState);
+  const localEvents = localStorage.getItem("events");
+  const localLogs = localStorage.getItem("logs");
+  const [stateEvent, dispatchEvent] = useReducer(events, localEvents ? JSON.parse(localEvents) : initialStateEvent);
+  const [stateLogs, dispatchLog] = useReducer(logs, localLogs ? JSON.parse(localLogs) : initialStateLogs);
   const [title, setTitle] = useState<string>("");
   const [body, setBody] = useState<string>("");
 
+  useEffect(() => {
+    localStorage.setItem("events", JSON.stringify(stateEvent));
+  }, [stateEvent]);
+
+  useEffect(() => {
+    localStorage.setItem("logs", JSON.stringify(stateLogs));
+  }, [stateLogs]);
+
   const onClickAdd = () => {
-    dispatch({
+    dispatchEvent({
       type: "CREATE_EVENT",
       title: title,
       body: body,
     });
+
+    dispatchLog({
+      type: "CREATE_OPERATE_LOGS",
+      description: "イベントを追加しました",
+      operatedAt: new Date().toISOString(),
+    });
+
     setTitle("");
     setBody("");
   };
   const onClickAllEventsDelete = () => {
-    dispatch({
+    if (!window.confirm("本当にすべてのイベントを削除しますか？？")) return;
+
+    dispatchEvent({
       type: "DELETE_ALL_EVENTS",
+    });
+    dispatchLog({
+      type: "CREATE_OPERATE_LOGS",
+      description: "イベントをすべて削除しました",
+      operatedAt: new Date().toISOString(),
     });
   };
   const onClickAllOperateLogDelete = () => {
-    dispatch({
-      type: "DELETE_ALL_EVENTS",
+    if (!window.confirm("本当にすべての操作ログを削除しますか？？")) return;
+    dispatchLog({
+      type: "DELETE_ALL_OPERATE_LOGS",
     });
   };
   const onChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -43,8 +67,8 @@ const App: React.FC = () => {
   };
 
   const isDisabledAdd = title === "" || body === "";
-  const isDisabledAllEventDelete = state.length === 0 ? true : false;
-  const isDisabledOperateLogDelete = true;
+  const isDisabledAllEventDelete = stateEvent.length === 0 ? true : false;
+  const isDisabledOperateLogDelete = stateLogs.length === 0 ? true : false;
 
   return (
     <div className="container">
@@ -56,47 +80,10 @@ const App: React.FC = () => {
       <InputButton type={"button"} text={"操作ログを全て削除する"} disabled={isDisabledOperateLogDelete} color="secondary" onClick={onClickAllOperateLogDelete} />
 
       <h4>イベント一覧</h4>
+      <EventTable stateEvent={stateEvent} dispatchEvent={dispatchEvent} dispatchLog={dispatchLog} />
 
-      <TableContainer>
-        <Table aria-label="simple table">
-          <colgroup>
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "50%" }} />
-            <col style={{ width: "10%" }} />
-          </colgroup>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Body</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {state.map((event) => {
-              const onClickEventDelete = () => {
-                dispatch({
-                  type: "DELETE_EVENT",
-                  id: event.id,
-                });
-              };
-              return (
-                <TableRow key={event.id.toString()}>
-                  <TableCell component="th" scope="row">
-                    {event.id}
-                  </TableCell>
-                  <TableCell>{event.title}</TableCell>
-                  <TableCell>{event.body}</TableCell>
-                  <TableCell>
-                    <InputButton type={"button"} text={"削除"} disabled={false} color="secondary" onClick={onClickEventDelete} />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <h4>操作ログ一覧</h4>
+      <OperateLogsTable stateLogs={stateLogs} />
     </div>
   );
 };
