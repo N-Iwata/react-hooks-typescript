@@ -3,6 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 
 interface InputFieldProps {
+  type: string;
   label: string;
   disabled: boolean;
   multiline: boolean;
@@ -26,6 +27,7 @@ const InputField: React.FC<InputFieldProps> = (props) => {
     <TextField
       className={classes.root}
       variant="outlined"
+      type={props.type}
       label={props.label}
       value={props.value}
       fullWidth

@@ -73,8 +73,8 @@ const App: React.FC = () => {
   return (
     <div className="container">
       <h4>イベント作成フォーム</h4>
-      <InputField label={"タイトル"} disabled={false} onChange={onChangeTitle} multiline={false} rows={1} value={title} />
-      <InputField label={"ボディー"} disabled={false} onChange={onChangeBody} multiline={true} rows={3} value={body} />
+      <InputField type={"text"} label={"タイトル"} disabled={false} onChange={onChangeTitle} multiline={false} rows={1} value={title} />
+      <InputField type={"text"} label={"ボディー"} disabled={false} onChange={onChangeBody} multiline={true} rows={3} value={body} />
       <InputButton type={"button"} text={"イベントを作成する"} disabled={isDisabledAdd} color="primary" onClick={onClickAdd} />
       <InputButton type={"button"} text={"イベントを全て削除する"} disabled={isDisabledAllEventDelete} color="secondary" onClick={onClickAllEventsDelete} />
       <InputButton type={"button"} text={"操作ログを全て削除する"} disabled={isDisabledOperateLogDelete} color="secondary" onClick={onClickAllOperateLogDelete} />
